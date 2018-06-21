@@ -10,3 +10,5 @@ target/
 *.iws
 .DS_Store
 atlassian-ide-plugin.xml
+/grm
+pkg/
