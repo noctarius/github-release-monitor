@@ -19,12 +19,12 @@ GRM uses a Git alike command structure and is fully embeddable into scripts.
  - [Quick Start](#quick-start)
  - [Usage](#usage)
  - [Commands](#commands)
-   - [Command: report](#command:-report)
-   - [Command: auth](#command:-auth)
-   - [Command: remote](#command:-remote)
-   - [Command: config](#command:-config)
-   - [Command: export](#command:-export)
-   - [Command: import](#command:-import)
+   - [Command: report](#command-report)
+   - [Command: auth](#command-auth)
+   - [Command: remote](#command-remote)
+   - [Command: config](#command-config)
+   - [Command: export](#command-export)
+   - [Command: import](#command-import)
  - [Remote Account Definition](#remote-account-definition)
  - [Repository Specific Overrides](#repository-specific-overrides)
  - [Credentials Security](#credentials-security)
@@ -98,12 +98,12 @@ GRM offers 6 base commands:
 
 | Command | Description |
 | --- | :--- |
-| report | The [report](#command:-report) command generates the actual release notifications by scanning the remote account and repositories. |
-| auth   | The [auth](#command:-auth) command retrieves and stores authentication information for a specific remote account. At the moment only username and password authentication is supported. |
-| remote | The [remote](#command:-remote) command handles adding and removing of remote account definitions. It does not handle authentication like the _auth_ command. |
-| config | The [config](#command:-config) command can change configuration properties and can be used to put repository specific overrides for default properties. |
-| export | The [export](#command:-export) command can export a specific remote account definition, including all properties, except for authentication information. |
-| import | The [import](#command:-import) command can import a previously exported remote account definition, including all properties. | 
+| report | The [report](#command-report) command generates the actual release notifications by scanning the remote account and repositories. |
+| auth   | The [auth](#command-auth) command retrieves and stores authentication information for a specific remote account. At the moment only username and password authentication is supported. |
+| remote | The [remote](#command-remote) command handles adding and removing of remote account definitions. It does not handle authentication like the _auth_ command. |
+| config | The [config](#command-config) command can change configuration properties and can be used to put repository specific overrides for default properties. |
+| export | The [export](#command-export) command can export a specific remote account definition, including all properties, except for authentication information. |
+| import | The [import](#command-import) command can import a previously exported remote account definition, including all properties. | 
 
 Except for the _report_ command, most other commands are only to be used in very specific situations.
   
@@ -136,7 +136,7 @@ GRM uses user account credentials (username and password) of Github account to a
 against the Github API. This is mainly used to have higher request quotas, before the rate limits
 kick in.
 
-The [auth](#command:-auth) command therefore asks for username and password and stores those
+The [auth](#command-auth) command therefore asks for username and password and stores those
 information with the rest of the [Remote Account Definition](#remote-account-definition) in a local
 only configuration file. The default location of this configuration file is under the user's home
 directory: *$HOME/github-release-monitor/config* 
