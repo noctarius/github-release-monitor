@@ -89,10 +89,10 @@ func cmdReport(cmd *cli.Cmd) {
 		}
 
 		print("Reading repositories... ")
-		repos := readRepositories(remoteAccount, visibility, repositoryPattern, client)
+		repos := readRepositories(*name, remoteAccount, visibility, repositoryPattern, client)
 		println("done.")
 
-		repositories := selectRepositories(repos, remoteAccount, date, client)
+		repositories := selectRepositories(repos, *name, remoteAccount, date, client)
 		println(fmt.Sprintf("Found %d repositories", len(repositories)))
 		for _, rep := range repositories {
 			for _, rel := range rep.releases {
@@ -145,12 +145,12 @@ func readMilestones(account, repository string, client *github.Client) []*github
 	}
 }
 
-func selectRepositories(repositories []*github.Repository, account string, since time.Time, client *github.Client) []*repository {
+func selectRepositories(repositories []*github.Repository, name, account string, since time.Time, client *github.Client) []*repository {
 	tasks := new(sync.WaitGroup)
 	tasks.Add(len(repositories))
 
 	p := mpb.New(mpb.WithWaitGroup(tasks))
-	bar := p.AddBar(int64(len(repositories)-1),
+	bar := p.AddBar(int64(len(repositories)),
 		mpb.PrependDecorators(
 			decor.Name("Filtering repositories", decor.WCSyncSpaceR),
 			decor.CountersNoUnit("%d / %d", decor.WCSyncWidth),
@@ -165,11 +165,11 @@ func selectRepositories(repositories []*github.Repository, account string, since
 		repoName := repo.GetName()
 		jobs[i] = func() interface{} {
 			milestones := readMilestones(account, repoName, client)
-			tags := readTags(account, repoName, client)
+			tags := readTags(name, account, repoName, client)
 			releases := filterTags(tags, account, repoName, since, client)
 
 			var pattern *regexp.Regexp = nil
-			milestonePattern, ok := configuration.NamedSectionGet(account, config.Remote, config.MilestonePattern, repoName)
+			milestonePattern, ok := configuration.NamedSectionGet(name, config.Remote, config.MilestonePattern, repoName)
 			if !ok {
 				log.Fatal("No milestone pattern defined to extract milestone naming scheme")
 			}
@@ -178,7 +178,7 @@ func selectRepositories(repositories []*github.Repository, account string, since
 				log.Fatal(fmt.Sprintf("Cannot compile regex: %s", milestonePattern))
 			}
 
-			downloadUrl, _ := configuration.NamedSectionGet(account, config.Remote, config.DownloadUrl, repoName)
+			downloadUrl, _ := configuration.NamedSectionGet(name, config.Remote, config.DownloadUrl, repoName)
 
 			for _, release := range releases {
 				milestone := findMatchingMilestone(release, milestones, pattern)
@@ -279,13 +279,13 @@ func readCommit(account, repository, sha string, client *github.Client) *github.
 	}
 }
 
-func readTags(account, repository string, client *github.Client) []*github.RepositoryTag {
+func readTags(name, account, repository string, client *github.Client) []*github.RepositoryTag {
 	ctx := context.Background()
 
 	releases := make([]*github.RepositoryTag, 0)
 
 	var pattern *regexp.Regexp = nil
-	if r, ok := configuration.NamedSectionGet(account, config.Remote, config.ReleasePattern, repository); ok {
+	if r, ok := configuration.NamedSectionGet(name, config.Remote, config.ReleasePattern, repository); ok {
 		p, err := regexp.Compile(r)
 		if err != nil {
 			log.Fatal(fmt.Sprintf("Cannot compile regex: %s", r))
@@ -324,7 +324,7 @@ func readTags(account, repository string, client *github.Client) []*github.Repos
 	}
 }
 
-func readRepositories(account, visibility, repositoryPattern string, client *github.Client) []*github.Repository {
+func readRepositories(name, account, visibility, repositoryPattern string, client *github.Client) []*github.Repository {
 	ctx := context.Background()
 
 	repositories := make([]*github.Repository, 0)
@@ -360,7 +360,7 @@ func readRepositories(account, visibility, repositoryPattern string, client *git
 
 		for _, repository := range r {
 			if pattern == nil || pattern.MatchString(repository.GetName()) {
-				if !isBlacklisted(account, repository.GetName()) {
+				if !isBlacklisted(name, repository.GetName()) {
 					repositories = append(repositories, repository)
 				}
 			}
@@ -375,8 +375,8 @@ func readRepositories(account, visibility, repositoryPattern string, client *git
 	}
 }
 
-func isBlacklisted(account, repository string) bool {
-	if r, ok := configuration.NamedSectionGet(account, config.Remote, config.RepositoryBlacklisted, repository); ok {
+func isBlacklisted(name, repository string) bool {
+	if r, ok := configuration.NamedSectionGet(name, config.Remote, config.RepositoryBlacklisted, repository); ok {
 		b, err := strconv.ParseBool(r)
 		if err != nil {
 			log.Fatal("Could not parse boolean", err)
