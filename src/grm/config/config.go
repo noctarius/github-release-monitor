@@ -25,8 +25,10 @@ type configuration struct {
 }
 
 type Mutator interface {
+	Delete(section Section)
 	SectionSet(section Section, key Key, specifier, value string)
 	SectionDelete(section Section, key Key, specifier string)
+	NamedDelete(name string, section Section)
 	NamedSectionSet(name string, section Section, key Key, specifier, value string)
 	NamedSectionDelete(name string, section Section, key Key, specifier string)
 }
@@ -234,6 +236,15 @@ func (c *configuration) sectionGet(section string, key Key, specifier string) (v
 	return c.ini.SectionGet(section, key.Name())
 }
 
+func (c *configuration) Delete(section Section) {
+	if section.Named() {
+		log.Fatal("Tried to delete a named section without a name")
+	}
+	sectionName := section.Name()
+	sectionMap := c.ini.GetAll()
+	delete(sectionMap, sectionName)
+}
+
 func (c *configuration) SectionSet(section Section, key Key, specifier, value string) {
 	if section.Named() {
 		log.Fatal("Tried to retrieve a named section without a name")
@@ -256,6 +267,15 @@ func (c *configuration) SectionDelete(section Section, key Key, specifier string
 		keySpace = buildOverloadedKey(key, specifier)
 	}
 	c.ini.Delete(sectionName, keySpace)
+}
+
+func (c *configuration) NamedDelete(name string, section Section) {
+	if !section.Named() {
+		log.Fatal("Tried to delete a non-named section with a name")
+	}
+	sectionName := buildSectionName(section, name)
+	sectionMap := c.ini.GetAll()
+	delete(sectionMap, sectionName)
 }
 
 func (c *configuration) NamedSectionSet(name string, section Section, key Key, specifier, value string) {

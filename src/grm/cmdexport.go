@@ -13,7 +13,7 @@ func cmdExport(cmd *cli.Cmd) {
 	cmd.Spec = "NAME [ --out=<outfile> ]"
 
 	var (
-		name = cmd.StringArg("NAME", "", "The already defined remote user")
+		name = cmd.StringArg("NAME", "", "The name of the remote definition")
 		out  = cmd.StringOpt("out", "", "The export path and filename, default: {NAME}.config")
 	)
 

@@ -18,7 +18,7 @@ func cmdConfigSet(cmd *cli.Cmd) {
 	cmd.Spec = "NAME KEY VALUE [ --repository=<repository> ]"
 
 	var (
-		name       = cmd.StringArg("NAME", "", "The already defined remote user")
+		name       = cmd.StringArg("NAME", "", "The name of the remote definition")
 		key        = cmd.StringArg("KEY", "", "The property key to configure")
 		value      = cmd.StringArg("VALUE", "", "The property's new value")
 		repository = cmd.StringOpt("repository", "", "Set as repository specific override")
@@ -48,7 +48,7 @@ func cmdConfigGet(cmd *cli.Cmd) {
 	cmd.Spec = "NAME KEY [ --repository=<repository> ]"
 
 	var (
-		name       = cmd.StringArg("NAME", "", "The already defined remote user")
+		name       = cmd.StringArg("NAME", "", "The name of the remote definition")
 		key        = cmd.StringArg("KEY", "", "The property key to configure")
 		repository = cmd.StringOpt("repository", "", "Set as repository specific override")
 	)
@@ -90,7 +90,7 @@ func cmdConfigRemove(cmd *cli.Cmd) {
 	cmd.Spec = "NAME KEY [ --repository=<repository> ]"
 
 	var (
-		name       = cmd.StringArg("NAME", "", "The already defined remote user")
+		name       = cmd.StringArg("NAME", "", "The name of the remote definition")
 		key        = cmd.StringArg("KEY", "", "The property key to configure")
 		repository = cmd.StringOpt("repository", "", "Set as repository specific override")
 	)
@@ -119,7 +119,7 @@ func cmdConfigList(cmd *cli.Cmd) {
 	cmd.Spec = "NAME"
 
 	var (
-		name = cmd.StringArg("NAME", "", "The already defined remote user")
+		name = cmd.StringArg("NAME", "", "The name of the remote definition")
 	)
 
 	cmd.Action = func() {

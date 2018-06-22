@@ -23,7 +23,7 @@ func cmdReport(cmd *cli.Cmd) {
 	cmd.Spec = "NAME  [ -p=<private_repos> ] [ --repository-pattern=<repository-pattern> ] [ --since=<since> ]"
 
 	var (
-		name              = cmd.StringArg("NAME", "", "The already defined remote user")
+		name              = cmd.StringArg("NAME", "", "The name of the remote definition")
 		private           = cmd.BoolOpt("p private", false, "Analyze private repositories, default: false")
 		repositoryPattern = cmd.StringOpt("repository-pattern", "", "A pattern to match repository names")
 		since             = cmd.StringOpt("since", "", "Date of search begin in ISO format YYYY-MM-DD")

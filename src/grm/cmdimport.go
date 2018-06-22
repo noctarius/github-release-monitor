@@ -28,7 +28,7 @@ func cmdImport(cmd *cli.Cmd) {
 
 		readOverride := func() bool {
 			line := readLine(fmt.Sprintf("A configuration for %s already exists, properties might get "+
-				"overridden. Do you really want to continue [yes|No]", *name), false)
+				"overridden. Do you really want to continue? [yes|No]", *name), false)
 
 			line = strings.ToLower(line)
 
