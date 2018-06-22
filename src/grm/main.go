@@ -42,7 +42,7 @@ func main() {
 
 	app.Command("report", "Generates a release report for the remote Github users", cmdReport)
 	app.Command("auth", "Configures authorization credentials for remote Github users", cmdAuth)
-	app.Command("remote", "Configures known remote Github users", cmdRemote)
+	app.Command("remote", "Configures remote Github user definitions", cmdRemote)
 	app.Command("config", "Sets, gets configuration properties for remote Github users", cmdConfig)
 	app.Command("export", "Exports configuration properties for remote Github users", cmdExport)
 	app.Command("import", "Imports configuration properties for remote Github users", cmdImport)
