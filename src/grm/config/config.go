@@ -38,6 +38,7 @@ type Section interface {
 
 type Key interface {
 	Overloadable() bool
+	Exportable() bool
 	Name() string
 }
 
@@ -56,11 +57,16 @@ func (s section) Name() string {
 
 type key struct {
 	string
-	bool
+	overloadable bool
+	exportable   bool
 }
 
 func (k key) Overloadable() bool {
-	return k.bool
+	return k.overloadable
+}
+
+func (k key) Exportable() bool {
+	return k.exportable
 }
 
 func (k key) Name() string {
@@ -72,20 +78,20 @@ var (
 )
 
 var (
-	Username          Key = key{"username", false}
-	Password          Key = key{"password", false}
-	Salt              Key = key{"salt", false}
-	RemoteUser        Key = key{"user", false}
-	ShowPrivate       Key = key{"show-private", false}
-	RepositoryPattern Key = key{"repository-pattern", false}
+	Username          Key = key{"username", false, false}
+	Password          Key = key{"password", false, false}
+	Salt              Key = key{"salt", false, false}
+	RemoteUser        Key = key{"user", false, true}
+	ShowPrivate       Key = key{"show-private", false, true}
+	RepositoryPattern Key = key{"repository-pattern", false, true}
 
-	ReleasePattern        Key = key{"release-pattern", true}
-	MilestonePattern      Key = key{"milestone-pattern", true}
-	RepositoryBlacklisted Key = key{"repository-blacklisted", true}
-	DownloadUrl           Key = key{"download-url", true}
+	ReleasePattern        Key = key{"release-pattern", true, true}
+	MilestonePattern      Key = key{"milestone-pattern", true, true}
+	RepositoryBlacklisted Key = key{"repository-blacklisted", true, true}
+	DownloadUrl           Key = key{"download-url", true, true}
 )
 
-var KeyLookup = map[string]Key{
+var keyLookup = map[string]Key{
 	Username.Name():              Username,
 	Password.Name():              Password,
 	Salt.Name():                  Salt,
@@ -114,6 +120,11 @@ func NewConfiguration(homeDir string) Configuration {
 	}
 
 	return configuration
+}
+
+func KeyLookup(key string) Key {
+	tokens := strings.Split(key, ":")
+	return keyLookup[tokens[0]]
 }
 
 func (c *configuration) Section(section Section) map[string]string {

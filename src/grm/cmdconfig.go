@@ -33,7 +33,7 @@ func cmdConfigSet(cmd *cli.Cmd) {
 			log.Fatal("No key specified")
 		}
 
-		realKey := config.KeyLookup[*key]
+		realKey := config.KeyLookup(*key)
 		if realKey == nil {
 			log.Fatal(fmt.Sprintf("Unknown key specified: %s", *key))
 		}
@@ -62,7 +62,7 @@ func cmdConfigGet(cmd *cli.Cmd) {
 			log.Fatal("No key specified")
 		}
 
-		realKey := config.KeyLookup[*key]
+		realKey := config.KeyLookup(*key)
 		if realKey == nil {
 			log.Fatal(fmt.Sprintf("Unknown key specified: %s", *key))
 		}
@@ -104,7 +104,7 @@ func cmdConfigRemove(cmd *cli.Cmd) {
 			log.Fatal("No key specified")
 		}
 
-		realKey := config.KeyLookup[*key]
+		realKey := config.KeyLookup(*key)
 		if realKey == nil {
 			log.Fatal(fmt.Sprintf("Unknown key specified: %s", *key))
 		}
