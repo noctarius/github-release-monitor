@@ -175,11 +175,27 @@ func (c *configuration) sectionGet(section string, key Key, specifier string) (v
 }
 
 func (c *configuration) SectionSet(section Section, key Key, specifier, value string) {
-	// TODO
+	if section.Named() {
+		log.Fatal("Tried to retrieve a named section without a name")
+	}
+	sectionName := section.Name()
+	keySpace := key.Name()
+	if specifier != "" {
+		keySpace = buildOverloadedKey(key, specifier)
+	}
+	c.ini.SectionSet(sectionName, keySpace, value)
 }
 
 func (c *configuration) NamedSectionSet(name string, section Section, key Key, specifier, value string) {
-	// TODO
+	if !section.Named() {
+		log.Fatal("Tried to retrieve a non-named section with a name")
+	}
+	sectionName := buildSectionName(section, name)
+	keySpace := key.Name()
+	if specifier != "" {
+		keySpace = buildOverloadedKey(key, specifier)
+	}
+	c.ini.SectionSet(sectionName, keySpace, value)
 }
 
 func (c *configuration) ApplyChanges(applyFunction func(config Mutator)) {
