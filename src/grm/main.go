@@ -107,7 +107,7 @@ func readLine(text string, hide bool) string {
 	} else {
 		dat, err = terminal.ReadPassword(int(syscall.Stdin))
 		println("")
-		if err != nil {
+		if err == nil {
 			line = string(dat)
 		}
 	}
