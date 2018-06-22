@@ -11,9 +11,9 @@ func cmdAuth(cmd *cli.Cmd) {
 	cmd.Spec = "NAME [ -u=<username> ] [ -p=<password> ]"
 
 	var (
-		name     = cmd.StringArg("NAME", "", "Defines the name of this remote")
-		username = cmd.StringOpt("u username", "", "Specify the username to access Github")
-		password = cmd.StringOpt("p password", "", "Specify the password to access Github")
+		name     = cmd.StringArg("NAME", "", "The name of the remote definition")
+		username = cmd.StringOpt("u username", "", "The username to access Github")
+		password = cmd.StringOpt("p password", "", "The password to access Github")
 	)
 
 	cmd.Action = func() {
@@ -22,7 +22,9 @@ func cmdAuth(cmd *cli.Cmd) {
 		}
 
 		readOverride := func() bool {
-			line := readLine("You already have a configuration file, are you sure to override? [yes/No] ", false)
+			line := readLine("You already have an authorization configuration, are you sure "+
+				"to override? [yes|No] ", false)
+
 			line = strings.ToLower(line)
 
 			if line == "yes" || line == "y" || line == "true" {
@@ -38,7 +40,7 @@ func cmdAuth(cmd *cli.Cmd) {
 			if oku && okp {
 				if !readOverride() {
 					// Stop execution
-					println("Configuration file not overridden, stopping")
+					println("Configuration not changed")
 					return
 				}
 			}

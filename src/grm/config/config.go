@@ -127,6 +127,14 @@ func KeyLookup(key string) Key {
 	return keyLookup[tokens[0]]
 }
 
+func ExtractSpecifier(key string) string {
+	tokens := strings.Split(key, ":")
+	if len(tokens) > 1 {
+		return tokens[1]
+	}
+	return ""
+}
+
 func (c *configuration) Section(section Section) map[string]string {
 	if section.Named() {
 		log.Fatal("Tried to retrieve a named section without a name")
