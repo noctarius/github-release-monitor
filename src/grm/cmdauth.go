@@ -3,18 +3,24 @@ package main
 import (
 	"github.com/jawher/mow.cli"
 	"strings"
-	"github.com/zieckey/goini"
+	"log"
+	"grm/config"
 )
 
-func cmdinit(cmd *cli.Cmd) {
-	cmd.Spec = "[ -u=<username> ] [ -p=<password> ]"
+func cmdAuth(cmd *cli.Cmd) {
+	cmd.Spec = "NAME [ -u=<username> ] [ -p=<password> ]"
 
 	var (
+		name     = cmd.StringArg("NAME", "", "Defines the name of this remote")
 		username = cmd.StringOpt("u username", "", "Specify the username to access Github")
 		password = cmd.StringOpt("p password", "", "Specify the password to access Github")
 	)
 
 	cmd.Action = func() {
+		if *name == "" {
+			log.Fatal("No remote name specified")
+		}
+
 		readOverride := func() bool {
 			line := readLine("You already have a configuration file, are you sure to override? [yes/No] ", false)
 			line = strings.ToLower(line)
@@ -25,9 +31,9 @@ func cmdinit(cmd *cli.Cmd) {
 			return false
 		}
 
-		if config != nil {
-			_, oku := config.SectionGet(sectionCredentials, keyUsername)
-			_, okp := config.SectionGet(sectionCredentials, keyPassword)
+		if configuration != nil {
+			_, oku := configuration.NamedSectionGet(*name, config.Remote, config.Username, "")
+			_, okp := configuration.NamedSectionGet(*name, config.Remote, config.Password, "")
 
 			if oku && okp {
 				if !readOverride() {
@@ -50,10 +56,10 @@ func cmdinit(cmd *cli.Cmd) {
 
 		encryptedPassword, salt := encrypt(realPassword, machineKey)
 
-		changeConfig(func(config *goini.INI) {
-			config.SectionSet(sectionCredentials, keyUsername, realUsername)
-			config.SectionSet(sectionCredentials, keyPassword, encryptedPassword)
-			config.SectionSet(sectionCredentials, keySalt, salt)
+		configuration.ApplyChanges(func(mutator config.Mutator) {
+			mutator.NamedSectionSet(*name, config.Remote, config.Username, "", realUsername)
+			mutator.NamedSectionSet(*name, config.Remote, config.Password, "", encryptedPassword)
+			mutator.NamedSectionSet(*name, config.Remote, config.Salt, "", salt)
 		})
 	}
 }

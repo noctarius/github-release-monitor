@@ -7,7 +7,6 @@ import (
 	"strings"
 	"bytes"
 	"crypto/sha256"
-	"github.com/zieckey/goini"
 	"os/user"
 	"path/filepath"
 	"os"
@@ -22,30 +21,13 @@ import (
 	"crypto/rand"
 	"github.com/google/go-github/github"
 	"time"
-)
-
-const (
-	sectionCredentials = "credentials"
-	sectionRemote      = "Remote \"%s\""
-)
-
-const (
-	keyUsername            = "username"
-	keyPassword            = "password"
-	keySalt                = "salt"
-	keyRemoteUser          = "user"
-	keyShowPrivate         = "show-private"
-	keyReleasePattern      = "release-pattern"
-	keyRepositoryPattern   = "repository-pattern"
-	keyMilestonePattern    = "milestone-pattern"
-	keyRepositoryBlacklist = "repository-blacklist"
-	keyDownloadUrl         = "download-url"
+	"grm/config"
 )
 
 var homeDir *string
 var verbose *bool
 var machineKey []byte
-var config *goini.INI
+var configuration config.Configuration
 
 func main() {
 	app := cli.App("grm", "Github Release Monitor")
@@ -55,12 +37,15 @@ func main() {
 	machineKey = generateMachineKey()
 
 	app.Before = func() {
-		config = readConfig(*homeDir)
+		configuration = config.NewConfiguration(*homeDir)
 	}
 
-	app.Command("init", "Initializes the user information to access Github", cmdinit)
-	app.Command("report", "Generates a report for the given Github user account", cmdreport)
-	app.Command("remote", "Configures known remote Github user", cmdremote)
+	app.Command("report", "Generates a release report for the remote Github users", cmdReport)
+	app.Command("auth", "Configures authorization credentials for remote Github users", cmdAuth)
+	app.Command("remote", "Configures known remote Github users", cmdRemote)
+	app.Command("config", "Sets, gets configuration properties for remote Github users", cmdConfig)
+	app.Command("export", "Exports configuration properties for remote Github users", cmdExport)
+	app.Command("import", "Imports configuration properties for remote Github users", cmdImport)
 
 	app.Run(os.Args)
 }
@@ -104,22 +89,6 @@ func generateMachineKey() []byte {
 	data := buffer.Bytes()
 	hash := sha256.Sum256(data)
 	return hash[:]
-}
-
-func readConfig(homeDir string) *goini.INI {
-	grmPath := filepath.Join(homeDir, "github-release-monitor")
-	configPath := filepath.Join(grmPath, "config")
-
-	if _, err := os.Stat(configPath); err != nil {
-		return nil
-	}
-
-	ini := goini.New()
-	if err := ini.ParseFile(configPath); err != nil {
-		log.Fatal(fmt.Sprintf("Could not read config file from '%s'", configPath), err)
-	}
-
-	return ini
 }
 
 func readLine(text string, hide bool) string {
@@ -212,36 +181,4 @@ func rateLimit(response *github.Response) bool {
 
 func hasMorePages(response *github.Response) bool {
 	return response.NextPage != 0
-}
-
-func writeConfig(config *goini.INI) {
-	grmPath := filepath.Join(*homeDir, "github-release-monitor")
-	configPath := filepath.Join(grmPath, "config")
-
-	if _, err := os.Stat(grmPath); err != nil {
-		if err := os.MkdirAll(grmPath, os.ModePerm); err != nil {
-			log.Fatal(fmt.Sprintf("Could not create config directory '%s'", grmPath), err)
-		}
-	}
-
-	file, err := os.Create(configPath)
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Could not create config file '%s'", configPath), err)
-	}
-
-	config.Write(file)
-	println("Configuration written")
-}
-
-func changeConfig(changer func(config *goini.INI)) {
-	if config == nil {
-		config = goini.New()
-	}
-
-	changer(config)
-	writeConfig(config)
-}
-
-func buildRemoteSection(name string) string {
-	return fmt.Sprintf(sectionRemote, name)
 }

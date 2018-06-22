@@ -16,32 +16,34 @@ import (
 	"github.com/vbauerster/mpb/decor"
 	"strings"
 	"net/http"
+	"grm/config"
 )
 
-func cmdreport(cmd *cli.Cmd) {
-	cmd.Spec = "NAME [ -a=<account> ] [ -p=<private_repos> ] [ --release-pattern=<release-pattern> ] [ --repository-pattern=<repository-pattern> ] [ --milestone-pattern=<milestone-pattern> ] [ --since=<since> ]"
+func cmdReport(cmd *cli.Cmd) {
+	cmd.Spec = "NAME  [ -p=<private_repos> ] [ --repository-pattern=<repository-pattern> ] [ --since=<since> ]"
 
 	var (
-		name     = cmd.StringArg("NAME", "", "The defined remote user to run against")
-		account  = cmd.StringOpt("a account", "", "Github account to analyze, default: currently logged in user")
-		private  = cmd.BoolOpt("p private", false, "Analyze private repositories, default: false")
-		pattern1 = cmd.StringOpt("release-pattern", "", "A pattern to match tag names")
-		pattern2 = cmd.StringOpt("repository-pattern", "", "A pattern to match repository names")
-		pattern3 = cmd.StringOpt("milestone-pattern", "", "A pattern to match milestone names")
-		since    = cmd.StringOpt("since", "", "Date of search begin in ISO format YYYY-MM-DD")
+		name              = cmd.StringArg("NAME", "", "The already defined remote user")
+		private           = cmd.BoolOpt("p private", false, "Analyze private repositories, default: false")
+		repositoryPattern = cmd.StringOpt("repository-pattern", "", "A pattern to match repository names")
+		since             = cmd.StringOpt("since", "", "Date of search begin in ISO format YYYY-MM-DD")
 	)
 
 	cmd.Action = func() {
-		username, ok := config.SectionGet(sectionCredentials, keyUsername)
+		if *name == "" {
+			log.Fatal("No remote name specified")
+		}
+
+		username, ok := configuration.NamedSectionGet(*name, config.Remote, config.Username, "")
 		if !ok {
 			log.Fatal("Could not retrieve username from config, please run 'grm init'")
 		}
-		pass, ok := config.SectionGet(sectionCredentials, keyPassword)
+		pass, ok := configuration.NamedSectionGet(*name, config.Remote, config.Password, "")
 		if !ok {
 			log.Fatal("Could not retrieve password from config, please run 'grm init'")
 		}
 
-		salt, ok := config.SectionGet(sectionCredentials, keySalt)
+		salt, ok := configuration.NamedSectionGet(*name, config.Remote, config.Salt, "")
 		if !ok {
 			log.Fatal("Could not retrieve salt from config, please run 'grm init'")
 		}
@@ -55,11 +57,10 @@ func cmdreport(cmd *cli.Cmd) {
 
 		remoteAccount := username
 		showPrivate := *private
-		releasePattern := *pattern1
-		repositoryPattern := *pattern2
-		milestonePattern := *pattern3
-		repositoryBlacklist := make([]string, 0)
-		downloadUrl := ""
+		repositoryPattern := *repositoryPattern
+		if r, ok := configuration.NamedSectionGet(*name, config.Remote, config.RepositoryPattern, ""); ok {
+			repositoryPattern = r
+		}
 
 		date := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
 		if *since != "" {
@@ -70,38 +71,16 @@ func cmdreport(cmd *cli.Cmd) {
 			date = d
 		}
 
-		if *name != "" {
-			section := buildRemoteSection(*name)
-			if u, ok := config.SectionGet(section, keyRemoteUser); ok {
-				remoteAccount = u
-			}
-			if p, ok := config.SectionGet(section, keyShowPrivate); ok {
-				sp, err := strconv.ParseBool(p)
-				if err != nil {
-					showPrivate = false
-				} else {
-					showPrivate = sp
-				}
-			}
-			if r, ok := config.SectionGet(section, keyReleasePattern); ok && releasePattern == "" {
-				releasePattern = r
-			}
-			if r, ok := config.SectionGet(section, keyRepositoryPattern); ok && repositoryPattern == "" {
-				repositoryPattern = r
-			}
-			if r, ok := config.SectionGet(section, keyMilestonePattern); ok && milestonePattern == "" {
-				milestonePattern = r
-			}
-			if r, ok := config.SectionGet(section, keyRepositoryBlacklist); ok {
-				repositoryBlacklist = append(repositoryBlacklist, strings.Split(r, ",")...)
-			}
-			if r, ok := config.SectionGet(section, keyDownloadUrl); ok {
-				downloadUrl = r
-			}
+		if u, ok := configuration.NamedSectionGet(*name, config.Remote, config.RemoteUser, ""); ok {
+			remoteAccount = u
 		}
-
-		if *account != "" {
-			remoteAccount = *account
+		if p, ok := configuration.NamedSectionGet(*name, config.Remote, config.ShowPrivate, ""); ok {
+			sp, err := strconv.ParseBool(p)
+			if err != nil {
+				showPrivate = false
+			} else {
+				showPrivate = sp
+			}
 		}
 
 		visibility := "public"
@@ -110,10 +89,10 @@ func cmdreport(cmd *cli.Cmd) {
 		}
 
 		print("Reading repositories... ")
-		repos := readRepositories(remoteAccount, visibility, repositoryPattern, repositoryBlacklist, client)
+		repos := readRepositories(remoteAccount, visibility, repositoryPattern, client)
 		println("done.")
 
-		repositories := selectRepositories(repos, remoteAccount, releasePattern, milestonePattern, downloadUrl, date, client)
+		repositories := selectRepositories(repos, remoteAccount, date, client)
 		println(fmt.Sprintf("Found %d repositories", len(repositories)))
 		for _, rep := range repositories {
 			for _, rel := range rep.releases {
@@ -166,7 +145,7 @@ func readMilestones(account, repository string, client *github.Client) []*github
 	}
 }
 
-func selectRepositories(repositories []*github.Repository, account, releasePattern, milestonePattern, downloadUrl string, since time.Time, client *github.Client) []*repository {
+func selectRepositories(repositories []*github.Repository, account string, since time.Time, client *github.Client) []*repository {
 	tasks := new(sync.WaitGroup)
 	tasks.Add(len(repositories))
 
@@ -186,11 +165,23 @@ func selectRepositories(repositories []*github.Repository, account, releasePatte
 		repoName := repo.GetName()
 		jobs[i] = func() interface{} {
 			milestones := readMilestones(account, repoName, client)
-			tags := readTags(account, repoName, releasePattern, client)
+			tags := readTags(account, repoName, client)
 			releases := filterTags(tags, account, repoName, since, client)
 
+			var pattern *regexp.Regexp = nil
+			milestonePattern, ok := configuration.NamedSectionGet(account, config.Remote, config.MilestonePattern, repoName)
+			if !ok {
+				log.Fatal("No milestone pattern defined to extract milestone naming scheme")
+			}
+			pattern, err := regexp.Compile(milestonePattern)
+			if err != nil {
+				log.Fatal(fmt.Sprintf("Cannot compile regex: %s", milestonePattern))
+			}
+
+			downloadUrl, _ := configuration.NamedSectionGet(account, config.Remote, config.DownloadUrl, repoName)
+
 			for _, release := range releases {
-				milestone := findMatchingMilestone(release, milestones, milestonePattern)
+				milestone := findMatchingMilestone(release, milestones, pattern)
 				if milestone != nil {
 					release.milestone = milestone
 					release.milestoneUrl = fmt.Sprintf("%s?closed=1", milestone.GetHTMLURL())
@@ -229,7 +220,7 @@ func selectRepositories(repositories []*github.Repository, account, releasePatte
 }
 
 func buildDownloadUrl(account, repository, downloadUrl string, milestone *github.Milestone) string {
-	downloadUrl = findDownloadReplacement(downloadUrl, account, repository)
+	downloadUrl = strings.Replace(downloadUrl, "{name}", account, -1)
 	downloadUrl = strings.Replace(downloadUrl, "{repository}", repository, -1)
 	downloadUrl = strings.Replace(downloadUrl, "{version}", milestone.GetTitle(), -1)
 	response, err := http.Get(downloadUrl)
@@ -242,26 +233,7 @@ func buildDownloadUrl(account, repository, downloadUrl string, milestone *github
 	return ""
 }
 
-func findDownloadReplacement(downloadUrl, account, repository string) string {
-	section := buildRemoteSection(account)
-	if kvmap, ok := config.GetKvmap(section); ok {
-		for key, val := range kvmap {
-			if strings.HasPrefix(key, "download-url:") {
-				if fmt.Sprintf("download-url:%s", repository) == key {
-					return val
-				}
-			}
-		}
-	}
-	return downloadUrl
-}
-
-func findMatchingMilestone(release *release, milestones []*github.Milestone, milestonePattern string) *github.Milestone {
-	pattern, err := regexp.Compile(milestonePattern)
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Cannot compile regex: %s", milestonePattern))
-	}
-
+func findMatchingMilestone(release *release, milestones []*github.Milestone, pattern *regexp.Regexp) *github.Milestone {
 	substrings := pattern.FindAllStringSubmatch(release.name, 1)
 	if len(substrings) > 0 && len(substrings[0]) > 1 {
 		milestoneName := substrings[0][1]
@@ -307,16 +279,16 @@ func readCommit(account, repository, sha string, client *github.Client) *github.
 	}
 }
 
-func readTags(account, repository, releasePattern string, client *github.Client) []*github.RepositoryTag {
+func readTags(account, repository string, client *github.Client) []*github.RepositoryTag {
 	ctx := context.Background()
 
 	releases := make([]*github.RepositoryTag, 0)
 
 	var pattern *regexp.Regexp = nil
-	if releasePattern != "" {
-		p, err := regexp.Compile(releasePattern)
+	if r, ok := configuration.NamedSectionGet(account, config.Remote, config.ReleasePattern, repository); ok {
+		p, err := regexp.Compile(r)
 		if err != nil {
-			log.Fatal(fmt.Sprintf("Cannot compile regex: %s", releasePattern))
+			log.Fatal(fmt.Sprintf("Cannot compile regex: %s", r))
 		}
 		pattern = p
 	}
@@ -352,7 +324,7 @@ func readTags(account, repository, releasePattern string, client *github.Client)
 	}
 }
 
-func readRepositories(account, visibility, repositoryPattern string, repositoryBlacklist []string, client *github.Client) []*github.Repository {
+func readRepositories(account, visibility, repositoryPattern string, client *github.Client) []*github.Repository {
 	ctx := context.Background()
 
 	repositories := make([]*github.Repository, 0)
@@ -387,8 +359,8 @@ func readRepositories(account, visibility, repositoryPattern string, repositoryB
 		}
 
 		for _, repository := range r {
-			if pattern != nil && pattern.MatchString(repository.GetName()) {
-				if !isBlacklisted(repository.GetName(), repositoryBlacklist) {
+			if pattern == nil || pattern.MatchString(repository.GetName()) {
+				if !isBlacklisted(account, repository.GetName()) {
 					repositories = append(repositories, repository)
 				}
 			}
@@ -403,11 +375,13 @@ func readRepositories(account, visibility, repositoryPattern string, repositoryB
 	}
 }
 
-func isBlacklisted(repository string, blacklist []string) bool {
-	for _, blacklisted := range blacklist {
-		if repository == blacklisted {
-			return true
+func isBlacklisted(account, repository string) bool {
+	if r, ok := configuration.NamedSectionGet(account, config.Remote, config.RepositoryBlacklisted, repository); ok {
+		b, err := strconv.ParseBool(r)
+		if err != nil {
+			log.Fatal("Could not parse boolean", err)
 		}
+		return b
 	}
 	return false
 }
