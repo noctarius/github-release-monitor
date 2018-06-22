@@ -36,16 +36,16 @@ func cmdReport(cmd *cli.Cmd) {
 
 		username, ok := configuration.NamedSectionGet(*name, config.Remote, config.Username, "")
 		if !ok {
-			log.Fatal("Could not retrieve username from config, please run 'grm init'")
+			log.Fatal(fmt.Sprintf("Could not retrieve username from config, please run 'grm auth %s'", *name))
 		}
 		pass, ok := configuration.NamedSectionGet(*name, config.Remote, config.Password, "")
 		if !ok {
-			log.Fatal("Could not retrieve password from config, please run 'grm init'")
+			log.Fatal(fmt.Sprintf("Could not retrieve password from config, please run 'grm auth %s'", *name))
 		}
 
 		salt, ok := configuration.NamedSectionGet(*name, config.Remote, config.Salt, "")
 		if !ok {
-			log.Fatal("Could not retrieve salt from config, please run 'grm init'")
+			log.Fatal(fmt.Sprintf("Could not retrieve salt from config, please run 'grm auth %s'", *name))
 		}
 
 		basicAuth := github.BasicAuthTransport{
