@@ -84,6 +84,8 @@ will most likely change on every use. The date defined is the earliest day to sh
 If we pass _2018-03-01_ to the _since_ parameter, only releases on March 3rd 2018 or later will
 be shown as a result of the command. 
 
+![](example.png)
+
 ## Usage
 
 GRM uses a Git alike command structure. That means, there are commands, sub-commands, arguments
