@@ -25,7 +25,7 @@ func cmdConfigSet(cmd *cli.Cmd) {
 	)
 
 	cmd.Action = func() {
-		if *name != "" {
+		if *name == "" {
 			log.Fatal("No name specified")
 		}
 
@@ -109,10 +109,9 @@ func cmdConfigRemove(cmd *cli.Cmd) {
 			log.Fatal(fmt.Sprintf("Unknown key specified: %s", *key))
 		}
 
-		if *repository != "" {
-
-		}
-		// TODO
+		configuration.ApplyChanges(func(mutator config.Mutator) {
+			mutator.NamedSectionDelete(*name, config.Remote, realKey, *repository)
+		})
 	}
 }
 

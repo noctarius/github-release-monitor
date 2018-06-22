@@ -10,7 +10,9 @@ import (
 )
 
 type Configuration interface {
+	Section(section Section) map[string]string
 	SectionGet(section Section, key Key, specifier string) (value string, ok bool)
+	SectionGetOverrides(section Section, key Key) map[string]string
 	NamedSection(name string, section Section) map[string]string
 	NamedSectionGet(name string, section Section, key Key, specifier string) (value string, ok bool)
 	NamedSectionGetOverrides(name string, section Section, key Key) map[string]string
@@ -24,7 +26,9 @@ type configuration struct {
 
 type Mutator interface {
 	SectionSet(section Section, key Key, specifier, value string)
+	SectionDelete(section Section, key Key, specifier string)
 	NamedSectionSet(name string, section Section, key Key, specifier, value string)
+	NamedSectionDelete(name string, section Section, key Key, specifier string)
 }
 
 type Section interface {
@@ -112,12 +116,49 @@ func NewConfiguration(homeDir string) Configuration {
 	return configuration
 }
 
+func (c *configuration) Section(section Section) map[string]string {
+	if section.Named() {
+		log.Fatal("Tried to retrieve a named section without a name")
+	}
+
+	sectionName := section.Name()
+
+	if kvmap, ok := c.ini.GetKvmap(sectionName); ok {
+		overrides := make(map[string]string, len(kvmap))
+		for k, v := range kvmap {
+			overrides[k] = v
+		}
+		return overrides
+	}
+	return make(map[string]string, 0)
+}
+
 func (c *configuration) SectionGet(section Section, key Key, specifier string) (value string, ok bool) {
 	if section.Named() {
 		log.Fatal("Tried to retrieve a named section without a name")
 	}
 	sectionName := section.Name()
 	return c.sectionGet(sectionName, key, specifier)
+}
+
+func (c *configuration) SectionGetOverrides(section Section, key Key) map[string]string {
+	if section.Named() {
+		log.Fatal("Tried to retrieve a named section without a name")
+	}
+
+	sectionName := section.Name()
+	keySpace := fmt.Sprintf("%s:", key.Name())
+
+	if kvmap, ok := c.ini.GetKvmap(sectionName); ok {
+		overrides := make(map[string]string, 0)
+		for k, v := range kvmap {
+			if strings.HasPrefix(k, keySpace) {
+				overrides[k] = v
+			}
+		}
+		return overrides
+	}
+	return make(map[string]string, 0)
 }
 
 func (c *configuration) NamedSection(name string, section Section) map[string]string {
@@ -186,6 +227,18 @@ func (c *configuration) SectionSet(section Section, key Key, specifier, value st
 	c.ini.SectionSet(sectionName, keySpace, value)
 }
 
+func (c *configuration) SectionDelete(section Section, key Key, specifier string) {
+	if section.Named() {
+		log.Fatal("Tried to retrieve a named section without a name")
+	}
+	sectionName := section.Name()
+	keySpace := key.Name()
+	if specifier != "" {
+		keySpace = buildOverloadedKey(key, specifier)
+	}
+	c.ini.Delete(sectionName, keySpace)
+}
+
 func (c *configuration) NamedSectionSet(name string, section Section, key Key, specifier, value string) {
 	if !section.Named() {
 		log.Fatal("Tried to retrieve a non-named section with a name")
@@ -196,6 +249,18 @@ func (c *configuration) NamedSectionSet(name string, section Section, key Key, s
 		keySpace = buildOverloadedKey(key, specifier)
 	}
 	c.ini.SectionSet(sectionName, keySpace, value)
+}
+
+func (c *configuration) NamedSectionDelete(name string, section Section, key Key, specifier string) {
+	if !section.Named() {
+		log.Fatal("Tried to retrieve a non-named section with a name")
+	}
+	sectionName := buildSectionName(section, name)
+	keySpace := key.Name()
+	if specifier != "" {
+		keySpace = buildOverloadedKey(key, specifier)
+	}
+	c.ini.Delete(sectionName, keySpace)
 }
 
 func (c *configuration) ApplyChanges(applyFunction func(config Mutator)) {
