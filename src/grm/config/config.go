@@ -175,11 +175,11 @@ func (c *configuration) sectionGet(section string, key Key, specifier string) (v
 }
 
 func (c *configuration) SectionSet(section Section, key Key, specifier, value string) {
-
+	// TODO
 }
 
 func (c *configuration) NamedSectionSet(name string, section Section, key Key, specifier, value string) {
-
+	// TODO
 }
 
 func (c *configuration) ApplyChanges(applyFunction func(config Mutator)) {
