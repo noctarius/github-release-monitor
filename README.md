@@ -28,6 +28,7 @@ GRM uses a Git alike command structure and is fully embeddable into scripts.
  - [Remote Account Definition](#remote-account-definition)
  - [Repository Specific Overrides](#repository-specific-overrides)
  - [Credentials Security](#credentials-security)
+ - [Build It Yourself](#build-it-yourself)
 
 ## Sample Output
 
@@ -152,3 +153,12 @@ Credentials are not exported and the stored information can only be used on the 
 authenticated. If the network adapter configuration changes or a new computer is used and all 
 data is transferred, a re-authentication step will be required.
 
+## Build It Yourself
+
+GRM needs Go 1.8+ for compilation.
+
+The repository includes a simple build-script to kick off the compilation process for the current
+operating system and CPU platform. To execute a cross-compilation please change the build.sh script
+accordingly.
+
+All dependencies are vendored using the vendoring tool [gvt](https://github.com/FiloSottile/gvt).
