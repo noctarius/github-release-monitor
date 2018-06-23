@@ -118,7 +118,10 @@ a specific user and analyze their recent releases.
 To use the _report_ command, at least one remote account definition must be configured and authenticated, see [Remote Account Definition](#remote-account-definition).
 
 ```
-grm report <definition-name> [ --since=<since-date> ] [ -p=<private_repos> ] [ --repository-pattern=<repository-pattern> ]
+grm report <definition-name>
+    [ --since=<since-date> ]
+    [ -p=<private_repos> ]
+    [ --repository-pattern=<repository-pattern> ]
 ```
 
 | Argument | Required | Description |
@@ -137,7 +140,10 @@ grm report <definition-name> [ --since=<since-date> ] [ -p=<private_repos> ] [ -
 Configures authorization credentials for remote Github users
 
 ```
-grm auth <definition-name> [ -u=<username> ] [ -p=<password> ] [ --yes ] 
+grm auth <definition-name>
+    [ -u=<username> ]
+    [ -p=<password> ]
+    [ --yes ] 
 ```
 
 | Argument | Required | Description |
@@ -158,7 +164,12 @@ grm auth <definition-name> [ -u=<username> ] [ -p=<password> ] [ --yes ]
 Adds a remote Github user
 
 ```
-grm remote add <definition-name> <github-user> [ -p=<private> ] [ --release-pattern=<release-pattern> ] [ --repository-pattern=<repository-pattern> ] [ --milestone-pattern=<milestone-pattern> ] [ --download-url=<download-url> ]
+grm remote add <definition-name> <github-user>
+    [ -p=<private> ]
+    [ --release-pattern=<release-pattern> ]
+    [ --repository-pattern=<repository-pattern> ]
+    [ --milestone-pattern=<milestone-pattern> ]
+    [ --download-url=<download-url> ]
 ```
 
 | Argument | Required | Description |
@@ -179,7 +190,8 @@ grm remote add <definition-name> <github-user> [ -p=<private> ] [ --release-patt
 Removes a remote Github user
 
 ```
-grm remote remove <definition-name> [ --yes ]
+grm remote remove <definition-name>
+    [ --yes ]
 ```
 
 | Argument | Required | Description |
@@ -223,7 +235,8 @@ grm config get <definition-name> <property>
 Sets a configuration parameter
 
 ```
-grm config set <definition-name> <property> <value> [ --repository=<repository> ]
+grm config set <definition-name> <property> <value>
+    [ --repository=<repository> ]
 ```
 
 | Argument | Required | Description |
@@ -241,7 +254,8 @@ grm config set <definition-name> <property> <value> [ --repository=<repository> 
 Removes a configuration parameter
 
 ```
-grm config remove <definition-name> <property> [ --repository=<repository> ]
+grm config remove <definition-name> <property>
+    [ --repository=<repository> ]
 ```
 
 | Argument | Required | Description |
@@ -259,7 +273,8 @@ grm config remove <definition-name> <property> [ --repository=<repository> ]
 Exports configuration properties for remote Github users
 
 ```
-grm export <definition-name> [ --out=<outfile> ]
+grm export <definition-name>
+    [ --out=<outfile> ]
 ```
 
 | Argument | Required | Description |
@@ -275,7 +290,8 @@ grm export <definition-name> [ --out=<outfile> ]
 Imports configuration properties for remote Github users
 
 ```
-grm export <definition-name> <import-file> [ --yes ]
+grm export <definition-name> <import-file>
+    [ --yes ]
 ```
 
 | Argument | Required | Description |
