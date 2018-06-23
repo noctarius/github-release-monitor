@@ -117,17 +117,176 @@ a specific user and analyze their recent releases.
 
 To use the _report_ command, at least one remote account definition must be configured and authenticated, see [Remote Account Definition](#remote-account-definition).
 
+```
+grm report <definition-name> [ --since=<since-date> ] [ -p=<private_repos> ] [ --repository-pattern=<repository-pattern> ]
+```
+
+| Argument | Required | Description |
+| --- | :--- | :--- |
+| definition-name | true | The name of the remote definition |
+
+| Parameters | Required | Description |
+| --- | :--- | :--- |
+| --since | false | Date of search begin in ISO format YYYY-MM-DD |
+| -p, --private | false | Analyze private repositories, default: false |
+| --repository-pattern | false | A pattern to match repository names |
 
 
 #### Command: auth
 
+Configures authorization credentials for remote Github users
+
+```
+grm auth <definition-name> [ -u=<username> ] [ -p=<password> ] [ --yes ] 
+```
+
+| Argument | Required | Description |
+| --- | :--- | :--- |
+| definition-name | true | The name of the remote definition |
+
+| Parameters | Required | Description |
+| --- | :--- | :--- |
+| -u, --username | false | The username to access Github |
+| -p, --password | false | The password to access Github |
+| --yes* | false | Accept all questions, default: false |
+
+
 #### Command: remote
+
+##### Remote Add
+
+Adds a remote Github user
+
+```
+grm remote add <definition-name> <github-user> [ -p=<private> ] [ --release-pattern=<release-pattern> ] [ --repository-pattern=<repository-pattern> ] [ --milestone-pattern=<milestone-pattern> ] [ --download-url=<download-url> ]
+```
+
+| Argument | Required | Description |
+| --- | :--- | :--- |
+| definition-name | true | The name of the remote definition |
+| github-user | true | The remote user to be registered |
+
+| Parameters | Required | Description |
+| --- | :--- | :--- |
+| -p, --private | false | Will analyze private repositories, default: false |
+| --release-pattern | false | The default pattern to match tag names |
+| --repository-pattern | false | The default pattern to match repository names |
+| --milestone-pattern | false | The default pattern to match milestone names |
+| --download-url | false | The default download url pattern |
+
+##### Remote Remove
+
+Removes a remote Github user
+
+```
+grm remote remove <definition-name> [ --yes ]
+```
+
+| Argument | Required | Description |
+| --- | :--- | :--- |
+| definition-name | true | The name of the remote definition |
+
+| Parameters | Required | Description |
+| --- | :--- | :--- |
+| --yes* | false | Accept all questions, default: false |
 
 #### Command: config
 
+##### Config List
+
+Lists all configuration parameters
+
+```
+grm config list <definition-name>
+```
+
+| Argument | Required | Description |
+| --- | :--- | :--- |
+| definition-name | true | The name of the remote definition |
+
+##### Config Get
+
+Gets a configuration parameter
+
+```
+grm config get <definition-name> <property>
+```
+
+| Argument | Required | Description |
+| --- | :--- | :--- |
+| definition-name | true | The name of the remote definition |
+| property | true | The property key to configure |
+
+
+##### Config Set
+
+Sets a configuration parameter
+
+```
+grm config set <definition-name> <property> <value> [ --repository=<repository> ]
+```
+
+| Argument | Required | Description |
+| --- | :--- | :--- |
+| definition-name | true | The name of the remote definition |
+| property | true | The property key to configure |
+| value | true | The property's new value |
+
+| Parameters | Required | Description |
+| --- | :--- | :--- |
+| --repository | false | Set as repository specific override |
+
+##### Config Remove
+
+Removes a configuration parameter
+
+```
+grm config remove <definition-name> <property> [ --repository=<repository> ]
+```
+
+| Argument | Required | Description |
+| --- | :--- | :--- |
+| definition-name | true | The name of the remote definition |
+| property | true | The property key to configure |
+| value | true | The property's new value |
+
+| Parameters | Required | Description |
+| --- | :--- | :--- |
+| --repository | false | Set as repository specific override |
+
 #### Command: export
 
+Exports configuration properties for remote Github users
+
+```
+grm export <definition-name> [ --out=<outfile> ]
+```
+
+| Argument | Required | Description |
+| --- | :--- | :--- |
+| definition-name | true | The name of the remote definition |
+
+| Parameters | Required | Description |
+| --- | :--- | :--- |
+| --out | false | The export path and filename, default: {NAME}.config |
+
 #### Command: import
+
+Imports configuration properties for remote Github users
+
+```
+grm export <definition-name> <import-file> [ --yes ]
+```
+
+| Argument | Required | Description |
+| --- | :--- | :--- |
+| definition-name | true | The name of the remote definition |
+| import-file | true | The path and filename of the config to import |
+
+| Parameters | Required | Description |
+| --- | :--- | :--- |
+| --yes* | false | Accept all questions, default: false |
+
 
 ### Remote Account Definition
 
