@@ -308,6 +308,25 @@ grm export <definition-name> <import-file>
 
 ### Repository Specific Overrides
 
+Certain properties can be overridden on a per repository basis. This is useful, when multiple
+projects on the same account use different patterns to name releases or milestones. Also download
+URLs might differ between the projects. This often happens when you create client libraries for
+different programming languages and those languages use their distinct distribution ways like
+Maven, NuGet, PIP, Github or others.
+
+Overrideable properties are:
+
+ * _release-pattern_
+ * _milestone-pattern_
+ * _repository-blacklisted_
+ * _download-url_
+ 
+For some properties specific GRM commands might exist in future versions, like it is planned to
+add a specific shortcut to blacklist repositories, without the need to use configuration properties.
+
+To override a default value with a more specific repository override just add the `--repository=<repository>`
+parameter to config sub-commands.
+
 ### Credentials Security
 
 GRM uses user account credentials (username and password) of Github account to authenticate itself
