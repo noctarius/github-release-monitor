@@ -29,6 +29,7 @@ GRM uses a Git alike command structure and is fully embeddable into scripts.
  - [Repository Specific Overrides](#repository-specific-overrides)
  - [Credentials Security](#credentials-security)
  - [Build It Yourself](#build-it-yourself)
+ - [Footnotes](#footnotes)
 
 ## Sample Output
 
@@ -356,3 +357,9 @@ operating system and CPU platform. To execute a cross-compilation please change 
 accordingly.
 
 All dependencies are vendored using the vendoring tool [gvt](https://github.com/FiloSottile/gvt).
+
+
+## Footnotes
+
+Arguments, parameters or properties marked with an asterisk (*) might be planned for future versions
+or are only available in later versions. It is recommended to always use the latest version of GRM.
