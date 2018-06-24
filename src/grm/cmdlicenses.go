@@ -38,10 +38,6 @@ func cmdLicenses(cmd *cli.Cmd) {
 		fmt.Println("\tLicense: MIT")
 		fmt.Println("\tURL: https://github.com/vividcortex/ewma")
 
-		fmt.Println(" * threads:")
-		fmt.Println("\tLicense: MIT") // FUCKING GPL
-		fmt.Println("\tURL: https://github.com/vividcortex/ewma")
-
 		fmt.Println(" * goini:")
 		fmt.Println("\tLicense: BSD 3-Clause")
 		fmt.Println("\tURL: https://github.com/zieckey/goini")

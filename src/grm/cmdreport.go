@@ -12,7 +12,6 @@ import (
 	"github.com/araddon/dateparse"
 	"sync"
 	"github.com/vbauerster/mpb"
-	"github.com/wushilin/threads"
 	"github.com/vbauerster/mpb/decor"
 	"strings"
 	"net/http"
@@ -160,10 +159,20 @@ func selectRepositories(repositories []*github.Repository, name, account string,
 		),
 	)
 
-	jobs := make([]func() interface{}, len(repositories))
-	for i, repo := range repositories {
+	jobs := make(chan func(collector chan<- *repository), 1000)
+	collector := make(chan *repository, 1000)
+
+	for i := 0; i < 8; i++ {
+		go func() {
+			for job := range jobs {
+				job(collector)
+			}
+		}()
+	}
+
+	for _, repo := range repositories {
 		repoName := repo.GetName()
-		jobs[i] = func() interface{} {
+		jobs <- func(collector chan<- *repository) {
 			milestones := readMilestones(account, repoName, client)
 			tags := readTags(name, account, repoName, client)
 			releases := filterTags(tags, account, repoName, since, client)
@@ -196,23 +205,21 @@ func selectRepositories(repositories []*github.Repository, name, account string,
 					releases: releases,
 				}
 
-				bar.Increment()
-				tasks.Done()
-				return rep
+				collector <- rep
 			}
 			bar.Increment()
 			tasks.Done()
-			return nil
 		}
 	}
 
-	futureGroup := threads.ParallelDoWithLimit(jobs, 8)
-	ret := futureGroup.WaitAll()
+	close(jobs)
+	p.Wait()
+	close(collector)
 
 	reps := make([]*repository, 0)
-	for _, r := range ret {
+	for r := range collector {
 		if r != nil {
-			reps = append(reps, r.(*repository))
+			reps = append(reps, r)
 		}
 	}
 

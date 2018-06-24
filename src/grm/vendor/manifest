@@ -59,14 +59,6 @@
 			"notests": true
 		},
 		{
-			"importpath": "github.com/wushilin/threads",
-			"repository": "https://github.com/wushilin/threads",
-			"vcs": "git",
-			"revision": "d24acb41d4569064630b4157284eec6313aed34a",
-			"branch": "master",
-			"notests": true
-		},
-		{
 			"importpath": "github.com/zieckey/goini",
 			"repository": "https://github.com/zieckey/goini",
 			"vcs": "git",
