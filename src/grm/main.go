@@ -52,6 +52,7 @@ func main() {
 	app.Command("config", "Sets, gets configuration properties for remote Github users", cmdConfig)
 	app.Command("export", "Exports configuration properties for remote Github users", cmdExport)
 	app.Command("import", "Imports configuration properties for remote Github users", cmdImport)
+	app.Command("license", "Prints all license information for vendored dependencies", cmdLicenses)
 
 	app.Run(os.Args)
 }
