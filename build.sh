@@ -91,8 +91,10 @@ echo "# Target Arch: $arch"
 echo "# BuildTime: $builddate"
 echo "# Build Version: $buildversion"
 echo "########################################################################################"
-
+echo ""
+echo -n "Building..."
 mkdir -p target/${os}
 export GOPATH="$scriptpath"
 ${go} build -ldflags="$ldflags" ${cmd} -o target/$os/$out grm
 chmod +x target/${os}/grm
+echo " done."

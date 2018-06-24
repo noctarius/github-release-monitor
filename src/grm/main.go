@@ -41,7 +41,6 @@ func main() {
 	machineKey = generateMachineKey()
 
 	app.Version("version", fmt.Sprintf("Github-Release-Monitor (GRM)\nGit Revision %s (Date: %s UTC)", buildVersion, buildDate))
-	app.PrintHelp()
 
 	app.Before = func() {
 		configuration = config.NewConfiguration(*homeDir)
