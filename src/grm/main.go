@@ -24,10 +24,14 @@ import (
 	"grm/config"
 )
 
-var homeDir *string
-var verbose *bool
-var machineKey []byte
-var configuration config.Configuration
+var (
+	homeDir       *string
+	verbose       *bool
+	machineKey    []byte
+	configuration config.Configuration
+	buildVersion  = "unknown"
+	buildDate     = "unknown"
+)
 
 func main() {
 	app := cli.App("grm", "Github Release Monitor")
@@ -35,6 +39,9 @@ func main() {
 	verbose = app.BoolOpt("v verbose", false, "Verbose logging mode")
 	homeDir = app.StringOpt("h home", readUserHome(), "Specify a base directory for the configuration, default: current user's home")
 	machineKey = generateMachineKey()
+
+	app.Version("version", fmt.Sprintf("Github-Release-Monitor (GRM)\nGit Revision %s (Date: %s UTC)", buildVersion, buildDate))
+	app.PrintHelp()
 
 	app.Before = func() {
 		configuration = config.NewConfiguration(*homeDir)

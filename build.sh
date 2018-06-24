@@ -8,15 +8,10 @@ scriptpath="$(cd "$(dirname "$0")"; pwd -P)"
 go=$(command -v go)
 
 command -v go >/dev/null 2>&1 || { echo >&2 "Go 1.8+ needs to be available for compilation."; exit 1; }
+command -v git >/dev/null 2>&1 || { echo >&2 "Git needs to be available for compilation."; exit 1; }
 
 bos=$($go run $scriptpath/build/build.go -o)
 barch=$($go run $scriptpath/build/build.go -a)
-bversion=$($go run $scriptpath/build/build.go -v)
-
-if version_gt "1.8.0" ${bversion}; then
-    echo "Go version 1.8 or later is required. Found Go version: $bversion"
-    exit 1
-fi
 
 os="$bos"
 arch="$barch"
@@ -71,21 +66,33 @@ for arg in "$@"; do
       ((i++))
 done
 
+bversion=$($go run $scriptpath/build/build.go -v)
+
+if version_gt "1.8.0" ${bversion}; then
+    echo "Go version 1.8 or later is required. Found Go version: $bversion"
+    exit 1
+fi
+
 if [[ "$os" == "windows" ]]; then
     out="$out.exe"
 fi
 
-cmd="$go build $cmd -o target/$os/$out grm"
-echo "############################################"
+gitrev=$(git rev-parse HEAD)
+buildversion=$(git describe --tags >/dev/null 2>1||echo ${gitrev})
+builddate=$(date "+%Y-%m-%dT%H:%M:%S+%Z")
+ldflags="-X=main.buildVersion=$buildversion -X=main.buildDate=$builddate"
+
+echo "########################################################################################"
 echo "# Build OS: $bos"
 echo "# Build Arch: $barch"
 echo "# Go Version: $bversion"
 echo "# Target OS: $os"
 echo "# Target Arch: $arch"
-echo "# Commandline: $cmd"
-echo "############################################"
+echo "# BuildTime: $builddate"
+echo "# Build Version: $buildversion"
+echo "########################################################################################"
 
 mkdir -p target/${os}
 export GOPATH="$scriptpath"
-${cmd}
-chmod +x grm
+${go} build -ldflags="$ldflags" ${cmd} -o target/$os/$out grm
+chmod +x target/${os}/grm
