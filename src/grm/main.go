@@ -100,7 +100,7 @@ func generateMachineKey() []byte {
 func readLine(text string, hide bool) string {
 	reader := bufio.NewReader(os.Stdin)
 
-	print(fmt.Sprintf("%s ", text))
+	fmt.Print(fmt.Sprintf("%s ", text))
 
 	var (
 		dat  []byte
@@ -112,7 +112,7 @@ func readLine(text string, hide bool) string {
 		line, err = reader.ReadString('\n')
 	} else {
 		dat, err = terminal.ReadPassword(int(syscall.Stdin))
-		println("")
+		fmt.Println("")
 		if err == nil {
 			line = string(dat)
 		}

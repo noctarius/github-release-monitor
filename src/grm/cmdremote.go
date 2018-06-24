@@ -61,6 +61,10 @@ func cmdRemoteRemove(cmd *cli.Cmd) {
 			log.Fatal("No name specified")
 		}
 
+		// TODO ask milestone-pattern
+		// TODO ask download-url
+		// TODO ask release-pattern
+
 		readDeleteConfirm := func() bool {
 			line := readLine(fmt.Sprintf("The configuration %s is about to be deleted. Do you "+
 				"really want to continue? [yes|No]", *name), false)
@@ -76,7 +80,7 @@ func cmdRemoteRemove(cmd *cli.Cmd) {
 		if t := configuration.NamedSection(*name, config.Remote); len(t) > 0 {
 			if !readDeleteConfirm() {
 				// Stop execution
-				println("Configuration not changed")
+				fmt.Println("Configuration not changed")
 				return
 			}
 		}

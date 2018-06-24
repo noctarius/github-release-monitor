@@ -43,6 +43,6 @@ func cmdExport(cmd *cli.Cmd) {
 		}
 
 		export.Write(file)
-		println("Export successful")
+		fmt.Println("Export successful")
 	}
 }

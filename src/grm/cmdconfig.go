@@ -69,18 +69,18 @@ func cmdConfigGet(cmd *cli.Cmd) {
 
 		if *repository != "" {
 			if v, ok := configuration.NamedSectionGet(*name, config.Remote, realKey, *repository); ok {
-				println(fmt.Sprintf("Configured value for key '%s' => %s", *key, v))
+				fmt.Println(fmt.Sprintf("Configured value for key '%s' => %s", *key, v))
 			}
 
 		} else {
 			if v, ok := configuration.NamedSectionGet(*name, config.Remote, realKey, ""); ok {
-				println(fmt.Sprintf("Default value for key '%s' => %s", *key, v))
+				fmt.Println(fmt.Sprintf("Default value for key '%s' => %s", *key, v))
 			}
 
-			println("Existing overrides:")
+			fmt.Println("Existing overrides:")
 			values := configuration.NamedSectionGetOverrides(*name, config.Remote, realKey)
 			for k, v := range values {
-				println(fmt.Sprintf("\t%s => %s", k, v))
+				fmt.Println(fmt.Sprintf("\t%s => %s", k, v))
 			}
 		}
 	}
@@ -127,10 +127,10 @@ func cmdConfigList(cmd *cli.Cmd) {
 			log.Fatal("No name specified")
 		}
 
-		println("Available configuration properties:")
+		fmt.Println("Available configuration properties:")
 		values := configuration.NamedSection(*name, config.Remote)
 		for k, v := range values {
-			println(fmt.Sprintf("%s => %s", k, v))
+			fmt.Println(fmt.Sprintf("%s => %s", k, v))
 		}
 	}
 }

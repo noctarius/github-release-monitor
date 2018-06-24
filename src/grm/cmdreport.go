@@ -88,21 +88,21 @@ func cmdReport(cmd *cli.Cmd) {
 			visibility = "all"
 		}
 
-		print("Reading repositories... ")
+		fmt.Print("Reading repositories... ")
 		repos := readRepositories(*name, remoteAccount, visibility, repositoryPattern, client)
-		println("done.")
+		fmt.Println("done.")
 
 		repositories := selectRepositories(repos, *name, remoteAccount, date, client)
-		println(fmt.Sprintf("Found %d repositories", len(repositories)))
+		fmt.Println(fmt.Sprintf("Found %d repositories", len(repositories)))
 		for _, rep := range repositories {
 			for _, rel := range rep.releases {
 				if rel.milestone != nil {
-					println(fmt.Sprintf("New %s release: %s (%s)", rep.name, rel.name, rel.created.Format("2006-01-02")))
-					println("Release Notes: " + rel.milestoneUrl)
+					fmt.Println(fmt.Sprintf("New %s release: %s (%s)", rep.name, rel.name, rel.created.Format("2006-01-02")))
+					fmt.Println("Release Notes: " + rel.milestoneUrl)
 					if rel.downloadUrl != "" {
-						println("Download: " + rel.downloadUrl)
+						fmt.Println("Download: " + rel.downloadUrl)
 					}
-					println("")
+					fmt.Println("")
 				}
 			}
 		}

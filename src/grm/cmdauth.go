@@ -5,6 +5,7 @@ import (
 	"strings"
 	"log"
 	"grm/config"
+	"fmt"
 )
 
 func cmdAuth(cmd *cli.Cmd) {
@@ -40,7 +41,7 @@ func cmdAuth(cmd *cli.Cmd) {
 			if oku && okp {
 				if !readOverride() {
 					// Stop execution
-					println("Configuration not changed")
+					fmt.Println("Configuration not changed")
 					return
 				}
 			}

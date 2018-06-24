@@ -41,7 +41,7 @@ func cmdImport(cmd *cli.Cmd) {
 		if t := configuration.NamedSection(*name, config.Remote); len(t) > 0 {
 			if !readOverride() {
 				// Stop execution
-				println("Configuration not changed")
+				fmt.Println("Configuration not changed")
 				return
 			}
 		}
@@ -62,9 +62,9 @@ func cmdImport(cmd *cli.Cmd) {
 				}
 			})
 
-			println("Import successful")
+			fmt.Println("Import successful")
 		} else {
-			println("Import failed, nothing to import")
+			fmt.Println("Import failed, nothing to import")
 		}
 	}
 }
