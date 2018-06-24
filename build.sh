@@ -78,7 +78,7 @@ if [[ "$os" == "windows" ]]; then
 fi
 
 gitrev=$(git rev-parse HEAD)
-buildversion=$(git describe --tags >/dev/null 2>1||echo ${gitrev})
+buildversion=$(git describe --tags >/dev/null 2>&1||echo ${gitrev})
 builddate=$(date "+%Y-%m-%dT%H:%M:%S+%Z")
 ldflags="-X=main.buildVersion=$buildversion -X=main.buildDate=$builddate"
 
