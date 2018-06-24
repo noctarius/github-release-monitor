@@ -95,6 +95,8 @@ echo ""
 echo -n "Building..."
 mkdir -p target/${os}
 export GOPATH="$scriptpath"
+export GOARCH="$arch"
+export GOOS="$os"
 ${go} build -ldflags="$ldflags" ${cmd} -o target/$os/$out grm
 chmod +x target/${os}/grm
 echo " done."
