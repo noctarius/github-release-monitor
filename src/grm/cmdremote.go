@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"grm/config"
 	"fmt"
-	"strings"
 )
 
 func cmdRemote(cmd *cli.Cmd) {
@@ -54,6 +53,7 @@ func cmdRemoteRemove(cmd *cli.Cmd) {
 
 	var (
 		name = cmd.StringArg("NAME", "", "The name of the remote definition")
+		yes  = cmd.BoolOpt("y yes", false, "Accept all questions with yes")
 	)
 
 	cmd.Action = func() {
@@ -66,15 +66,11 @@ func cmdRemoteRemove(cmd *cli.Cmd) {
 		// TODO ask release-pattern
 
 		readDeleteConfirm := func() bool {
-			line := readLine(fmt.Sprintf("The configuration %s is about to be deleted. Do you "+
-				"really want to continue? [yes|No]", *name), false)
-
-			line = strings.ToLower(line)
-
-			if line == "yes" || line == "y" || line == "true" {
+			if *yes {
 				return true
 			}
-			return false
+			return readYesNoQuestion(fmt.Sprintf("The configuration %s is about to be deleted. Do you "+
+				"really want to continue?", *name), false)
 		}
 
 		if t := configuration.NamedSection(*name, config.Remote); len(t) > 0 {

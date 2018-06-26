@@ -146,6 +146,22 @@ func readLine(text string, hide bool) string {
 	return strings.TrimSpace(line)
 }
 
+func readYesNoQuestion(text string, defaultsToYes bool) bool {
+	if defaultsToYes {
+		text = fmt.Sprintf("%s [Yes|no] ", text)
+	} else {
+		text = fmt.Sprintf("%s [yes|No] ", text)
+	}
+
+	line := readLine(text, false)
+	line = strings.ToLower(line)
+
+	if line == "yes" || line == "y" || line == "true" || defaultsToYes {
+		return true
+	}
+	return false
+}
+
 func encrypt(value string, key []byte) (string, string) {
 	block, err := aes.NewCipher(key)
 	if err != nil {

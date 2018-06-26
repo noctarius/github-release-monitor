@@ -2,19 +2,19 @@ package main
 
 import (
 	"github.com/jawher/mow.cli"
-	"strings"
 	"log"
 	"grm/config"
 	"fmt"
 )
 
 func cmdAuth(cmd *cli.Cmd) {
-	cmd.Spec = "NAME [ -u=<username> ] [ -p=<password> ]"
+	cmd.Spec = "NAME [ -u=<username> ] [ -p=<password> ] [ --yes ]"
 
 	var (
 		name     = cmd.StringArg("NAME", "", "The name of the remote definition")
 		username = cmd.StringOpt("u username", "", "The username to access Github")
 		password = cmd.StringOpt("p password", "", "The password to access Github")
+		yes      = cmd.BoolOpt("y yes", false, "Accept all questions with yes")
 	)
 
 	cmd.Action = func() {
@@ -23,15 +23,11 @@ func cmdAuth(cmd *cli.Cmd) {
 		}
 
 		readOverride := func() bool {
-			line := readLine("You already have an authorization configuration, are you sure "+
-				"to override? [yes|No] ", false)
-
-			line = strings.ToLower(line)
-
-			if line == "yes" || line == "y" || line == "true" {
+			if *yes {
 				return true
 			}
-			return false
+			return readYesNoQuestion("You already have an authorization configuration, are you sure "+
+				"to override?", false)
 		}
 
 		if configuration != nil {

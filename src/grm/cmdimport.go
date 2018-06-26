@@ -5,7 +5,6 @@ import (
 	"log"
 	"grm/config"
 	"fmt"
-	"strings"
 	"github.com/zieckey/goini"
 )
 
@@ -15,6 +14,7 @@ func cmdImport(cmd *cli.Cmd) {
 	var (
 		name       = cmd.StringArg("NAME", "", "The name of the remote definition")
 		importFile = cmd.StringArg("IMPORTFILE", "", "The path and filename of the config to import")
+		yes        = cmd.BoolOpt("y yes", false, "Accept all questions with yes")
 	)
 
 	cmd.Action = func() {
@@ -27,15 +27,11 @@ func cmdImport(cmd *cli.Cmd) {
 		}
 
 		readOverride := func() bool {
-			line := readLine(fmt.Sprintf("A configuration for %s already exists, properties might get "+
-				"overridden. Do you really want to continue? [yes|No]", *name), false)
-
-			line = strings.ToLower(line)
-
-			if line == "yes" || line == "y" || line == "true" {
+			if *yes {
 				return true
 			}
-			return false
+			return readYesNoQuestion(fmt.Sprintf("A configuration for %s already exists, properties might get "+
+				"overridden. Do you really want to continue? [yes|No]", *name), false)
 		}
 
 		if t := configuration.NamedSection(*name, config.Remote); len(t) > 0 {
