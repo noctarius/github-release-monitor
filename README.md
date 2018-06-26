@@ -350,14 +350,20 @@ data is transferred, a re-authentication step will be required.
 
 ## Build It Yourself
 
-GRM needs Go 1.8+ for compilation.
-
 The repository includes a simple build-script to kick off the compilation process for the current
-operating system and CPU platform. To execute a cross-compilation please change the build.sh script
-accordingly.
+operating system and CPU platform by default. The binary will be compiled to a set of subfolders 
+of pattern `target/$target_os`.
+
+Cross compilation is also possible by providing either or both of `--arch` or `--os` parameters.
+The tool is tested to compile against Linux, FreeBSD, OSX (darwin) and Windows, all of them with
+amd64 CPU platform. Only OSX has been tested to run the tool though. If you find out, the tool does
+not work on any OS/ARCH combination you need, feel free to open an issue.
+
+GRM needs Go 1.8+ for compilation. The current version of Go is automatically tested when running
+the build script. In case multiple Go versions are available on the system, the preferred Go binary
+can be passed to the build script using the parameter `--go=/path/to/go/binary`.
 
 All dependencies are vendored using the vendoring tool [gvt](https://github.com/FiloSottile/gvt).
-
 
 ## Footnotes
 
