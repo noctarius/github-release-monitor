@@ -37,13 +37,37 @@ func cmdRemoteAdd(cmd *cli.Cmd) {
 
 		showPrivate := *private
 
+		realRepositoryPattern := *repositoryPattern
+		if realRepositoryPattern == "" {
+			realRepositoryPattern = readLine("Pattern to match repository names: [.*]",
+				false, ".*")
+		}
+
+		realMilestonePattern := *milestonePattern
+		if realMilestonePattern == "" {
+			realMilestonePattern = readLine("Pattern to match milestone names: [^[a-zA-Z-_]-(.*)]",
+				false, "^[a-zA-Z-_]-(.*)")
+		}
+
+		realReleasePattern := *releasePattern
+		if realReleasePattern == "" {
+			realReleasePattern = readLine("Pattern to match release names: []",
+				false, "")
+		}
+
+		realDownloadUrl := *downloadUrl
+		if realDownloadUrl == "" {
+			realDownloadUrl = readLine("Basic download url: [http://download.example.com/{account}/{repository}/{version}]",
+				false, "http://download.example.com/{account}/{repository}/{version}")
+		}
+
 		configuration.ApplyChanges(func(mutator config.Mutator) {
 			mutator.NamedSectionSet(*name, config.Remote, config.RemoteUser, "", *user)
 			mutator.NamedSectionSet(*name, config.Remote, config.ShowPrivate, "", strconv.FormatBool(showPrivate))
-			mutator.NamedSectionSet(*name, config.Remote, config.ReleasePattern, "", *releasePattern)
-			mutator.NamedSectionSet(*name, config.Remote, config.RepositoryPattern, "", *repositoryPattern)
-			mutator.NamedSectionSet(*name, config.Remote, config.MilestonePattern, "", *milestonePattern)
-			mutator.NamedSectionSet(*name, config.Remote, config.DownloadUrl, "", *downloadUrl)
+			mutator.NamedSectionSet(*name, config.Remote, config.ReleasePattern, "", realReleasePattern)
+			mutator.NamedSectionSet(*name, config.Remote, config.RepositoryPattern, "", realRepositoryPattern)
+			mutator.NamedSectionSet(*name, config.Remote, config.MilestonePattern, "", realMilestonePattern)
+			mutator.NamedSectionSet(*name, config.Remote, config.DownloadUrl, "", realDownloadUrl)
 		})
 	}
 }
@@ -60,10 +84,6 @@ func cmdRemoteRemove(cmd *cli.Cmd) {
 		if *name == "" {
 			log.Fatal("No name specified")
 		}
-
-		// TODO ask milestone-pattern
-		// TODO ask download-url
-		// TODO ask release-pattern
 
 		readDeleteConfirm := func() bool {
 			if *yes {

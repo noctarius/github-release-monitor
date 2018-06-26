@@ -117,7 +117,7 @@ func generateMachineKey() []byte {
 	return hash[:]
 }
 
-func readLine(text string, hide bool) string {
+func readLine(text string, hide bool, defaultValue string) string {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Print(fmt.Sprintf("%s ", text))
@@ -143,7 +143,12 @@ func readLine(text string, hide bool) string {
 	}
 
 	line = strings.Replace(line, "\r", "", -1)
-	return strings.TrimSpace(line)
+	line = strings.TrimSpace(line)
+
+	if line == "" {
+		return defaultValue
+	}
+	return line
 }
 
 func readYesNoQuestion(text string, defaultsToYes bool) bool {
@@ -153,10 +158,15 @@ func readYesNoQuestion(text string, defaultsToYes bool) bool {
 		text = fmt.Sprintf("%s [yes|No] ", text)
 	}
 
-	line := readLine(text, false)
+	defaultValue := "no"
+	if defaultsToYes {
+		defaultValue = "yes"
+	}
+
+	line := readLine(text, false, defaultValue)
 	line = strings.ToLower(line)
 
-	if line == "yes" || line == "y" || line == "true" || defaultsToYes {
+	if line == "yes" || line == "y" || line == "true" {
 		return true
 	}
 	return false
