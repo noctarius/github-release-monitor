@@ -22,6 +22,7 @@ import (
 	"github.com/google/go-github/github"
 	"time"
 	"grm/config"
+	"sort"
 )
 
 var (
@@ -73,12 +74,17 @@ func readUserHome() string {
 }
 
 func generateMachineKey() []byte {
+	type interfaze struct {
+		name string
+		addr []byte
+	}
+
 	interfaces, err := net.Interfaces()
 	if err != nil {
 		log.Fatal("Cannot read network interfaces to generate machine key", err)
 	}
 
-	buffer := new(bytes.Buffer)
+	interfazes := make([]interfaze, 0)
 	for _, i := range interfaces {
 		if i.Flags&net.FlagLoopback != 0 || i.Flags&net.FlagPointToPoint != 0 {
 			continue
@@ -89,7 +95,20 @@ func generateMachineKey() []byte {
 			continue
 		}
 
-		addr := []byte(i.HardwareAddr)
+		interfazes = append(interfazes, interfaze{
+			name: i.Name,
+			addr: i.HardwareAddr,
+		})
+	}
+
+	sort.Slice(interfazes, func(i, j int) bool {
+		return strings.Compare(interfazes[i].name, interfazes[j].name) == -1
+	})
+
+	buffer := new(bytes.Buffer)
+	for _, i := range interfazes {
+		fmt.Println(i.name)
+		addr := []byte(i.addr)
 		buffer.Write(addr)
 	}
 
