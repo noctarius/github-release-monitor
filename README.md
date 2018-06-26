@@ -155,7 +155,7 @@ grm auth <definition-name>
 | --- | :--- | :--- |
 | -u, --username | false | The username to access Github |
 | -p, --password | false | The password to access Github |
-| -y --yes | false | Accept all questions, default: false |
+| -y, --yes | false | Accept all questions, default: false |
 
 
 #### Command: remote
@@ -201,7 +201,7 @@ grm remote remove <definition-name>
 
 | Parameters | Required | Description |
 | --- | :--- | :--- |
-| -y --yes | false | Accept all questions, default: false |
+| -y, --yes | false | Accept all questions, default: false |
 
 #### Command: config
 
@@ -302,7 +302,7 @@ grm import <definition-name> <import-file>
 
 | Parameters | Required | Description |
 | --- | :--- | :--- |
-| -y --yes | false | Accept all questions, default: false |
+| -y, --yes | false | Accept all questions, default: false |
 
 
 ### Remote Account Definition
