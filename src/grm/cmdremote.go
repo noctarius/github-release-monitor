@@ -57,6 +57,12 @@ func cmdRemoteAdd(cmd *cli.Cmd) {
 
 		realDownloadUrl := *downloadUrl
 		if realDownloadUrl == "" {
+			fmt.Println("The basic download url is the template to generate download urls for releases.")
+			fmt.Println("The template can contain template placeholders to be filled automatically.")
+			fmt.Println("Current template placeholders are:")
+			fmt.Println(" * {account}: The Github remote username (from the remote definition)")
+			fmt.Println(" * {repository}: The name of the current repository")
+			fmt.Println(" * {version}: The current release version")
 			realDownloadUrl = readLine("Basic download url: [http://download.example.com/{account}/{repository}/{version}]",
 				false, "http://download.example.com/{account}/{repository}/{version}")
 		}
