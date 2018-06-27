@@ -45,12 +45,12 @@ func cmdAuth(cmd *cli.Cmd) {
 
 		realUsername := *username
 		if realUsername == "" {
-			realUsername = readLine("Username:", false)
+			realUsername = readLine("Username:", false, "")
 		}
 
 		realPassword := *password
 		if realPassword == "" {
-			realPassword = readLine("Password:", true)
+			realPassword = readLine("Password:", true, "")
 		}
 
 		encryptedPassword, salt := encrypt(realPassword, machineKey)
