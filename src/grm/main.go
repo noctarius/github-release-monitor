@@ -107,7 +107,6 @@ func generateMachineKey() []byte {
 
 	buffer := new(bytes.Buffer)
 	for _, i := range interfazes {
-		fmt.Println(i.name)
 		addr := []byte(i.addr)
 		buffer.Write(addr)
 	}
