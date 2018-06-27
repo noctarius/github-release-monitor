@@ -165,7 +165,7 @@ func readYesNoQuestion(text string, defaultsToYes bool) bool {
 	line := readLine(text, false, defaultValue)
 	line = strings.ToLower(line)
 
-	if line == "yes" || line == "y" || line == "true" {
+	if line == "yes" || line == "y" || line == "true" || line == "1" {
 		return true
 	}
 	return false
