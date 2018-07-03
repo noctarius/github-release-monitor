@@ -144,7 +144,8 @@ Configures authorization credentials for remote Github users
 grm auth <definition-name>
     [ -u=<username> ]
     [ -p=<password> ]
-    [ --yes ] 
+    [ --yes ]
+    [ --all ]
 ```
 
 | Argument | Required | Description |
@@ -156,7 +157,10 @@ grm auth <definition-name>
 | -u, --username | false | The username to access Github |
 | -p, --password | false | The password to access Github |
 | -y, --yes | false | Accept all questions, default: false |
+| --all | false | Re-authorizes all remote definitions |
 
+In case _--all_ is supplied to the _auth_ command, the _<definition-name>_ is optional, otherwise
+it is required.
 
 #### Command: remote
 

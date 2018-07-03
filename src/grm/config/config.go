@@ -13,6 +13,7 @@ type Configuration interface {
 	Section(section Section) map[string]string
 	SectionGet(section Section, key Key, specifier string) (value string, ok bool)
 	SectionGetOverrides(section Section, key Key) map[string]string
+	NamedSections(section Section) []string
 	NamedSection(name string, section Section) map[string]string
 	NamedSectionGet(name string, section Section, key Key, specifier string) (value string, ok bool)
 	NamedSectionGetOverrides(name string, section Section, key Key) map[string]string
@@ -79,6 +80,10 @@ var (
 	Remote Section = section{"Remote \"%s\"", true}
 )
 
+var sectionLookup = map[string]Section{
+	"Remote": Remote,
+}
+
 var (
 	Username          Key = key{"username", false, false}
 	Password          Key = key{"password", false, false}
@@ -129,9 +134,21 @@ func KeyLookup(key string) Key {
 	return keyLookup[tokens[0]]
 }
 
+func SectionLookup(section string) Section {
+	if !strings.Contains(section, " ") {
+		return sectionLookup[section]
+	}
+	tokens := strings.Split(section, " \"")
+	return sectionLookup[tokens[0]]
+}
+
 func ExtractSpecifier(key string) string {
 	tokens := strings.Split(key, ":")
 	if len(tokens) > 1 {
+		return tokens[1]
+	}
+	tokens = strings.Split(key, "\"")
+	if len(tokens) > 2 {
 		return tokens[1]
 	}
 	return ""
@@ -180,6 +197,17 @@ func (c *configuration) SectionGetOverrides(section Section, key Key) map[string
 		return overrides
 	}
 	return make(map[string]string, 0)
+}
+
+func (c *configuration) NamedSections(section Section) []string {
+	sections := make([]string, 0)
+	for iniSection := range c.ini.GetAll() {
+		realSection := SectionLookup(iniSection)
+		if realSection == section {
+			sections = append(sections, iniSection)
+		}
+	}
+	return sections
 }
 
 func (c *configuration) NamedSection(name string, section Section) map[string]string {
