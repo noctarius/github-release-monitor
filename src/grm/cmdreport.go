@@ -279,7 +279,7 @@ func readCommit(account, repository, sha string, client *github.Client) *github.
 		}
 
 		if err != nil {
-			log.Fatal(fmt.Sprintf("Could not retrieve commit for commitId %s", sha), err)
+			log.Fatal(fmt.Sprintf("Could not retrieve commit for commitId %s: ", sha), err)
 		}
 
 		return commit
@@ -312,7 +312,7 @@ func readTags(name, account, repository string, client *github.Client) []*github
 		}
 
 		if err != nil {
-			log.Fatal(fmt.Sprintf("Could not retrieve tags for repository %s", repository), err)
+			log.Fatal(fmt.Sprintf("Could not retrieve tags for repository %s: ", repository), err)
 		}
 
 		for _, release := range r {
@@ -362,7 +362,7 @@ func readRepositories(name, account, visibility, repositoryPattern string, clien
 		}
 
 		if err != nil {
-			log.Fatal("Could not retrieve repositories", err)
+			log.Fatal("Could not retrieve repositories: ", err)
 		}
 
 		for _, repository := range r {
@@ -386,7 +386,7 @@ func isBlacklisted(name, repository string) bool {
 	if r, ok := configuration.NamedSectionGet(name, config.Remote, config.RepositoryBlacklisted, repository); ok {
 		b, err := strconv.ParseBool(r)
 		if err != nil {
-			log.Fatal("Could not parse boolean", err)
+			log.Fatal("Could not parse boolean: ", err)
 		}
 		return b
 	}

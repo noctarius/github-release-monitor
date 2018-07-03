@@ -39,7 +39,7 @@ func cmdExport(cmd *cli.Cmd) {
 
 		file, err := os.Create(outFile)
 		if err != nil {
-			log.Fatal(fmt.Sprintf("Could not create export file '%s'", outFile), err)
+			log.Fatal(fmt.Sprintf("Could not create export file '%s': ", outFile), err)
 		}
 
 		export.Write(file)

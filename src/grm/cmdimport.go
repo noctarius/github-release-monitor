@@ -44,7 +44,7 @@ func cmdImport(cmd *cli.Cmd) {
 
 		importer := goini.New()
 		if err := importer.ParseFile(*importFile); err != nil {
-			log.Fatal("Error opening the import file", err)
+			log.Fatal("Error opening the import file: ", err)
 		}
 
 		if values, ok := importer.GetKvmap(goini.DefaultSection); ok {
