@@ -2,10 +2,8 @@ package main
 
 import (
 	"github.com/jawher/mow.cli"
-	"net"
 	"log"
 	"strings"
-	"bytes"
 	"crypto/sha256"
 	"os/user"
 	"path/filepath"
@@ -22,7 +20,7 @@ import (
 	"github.com/google/go-github/github"
 	"time"
 	"grm/config"
-	"sort"
+	"github.com/denisbrodbeck/machineid"
 )
 
 var (
@@ -61,57 +59,24 @@ func main() {
 func readUserHome() string {
 	user, err := user.Current()
 	if err != nil {
-		log.Fatal("Cannot retrieve current user", err)
+		log.Fatal("Cannot retrieve current user: ", err)
 	}
 
 	homeDir := user.HomeDir
 	homeDir, err = filepath.Abs(homeDir)
 	if err != nil {
-		log.Fatal("Cannot retrieve current user's homedir", err)
+		log.Fatal("Cannot retrieve current user's homedir: ", err)
 	}
 
 	return homeDir
 }
 
 func generateMachineKey() []byte {
-	type interfaze struct {
-		name string
-		addr []byte
-	}
-
-	interfaces, err := net.Interfaces()
+	machineId, err := machineid.ID()
 	if err != nil {
-		log.Fatal("Cannot read network interfaces to generate machine key", err)
+		log.Fatal("Could not generate machine id: ", err)
 	}
-
-	interfazes := make([]interfaze, 0)
-	for _, i := range interfaces {
-		if i.Flags&net.FlagLoopback != 0 || i.Flags&net.FlagPointToPoint != 0 {
-			continue
-		}
-
-		// Ignore subinterfaces
-		if strings.Contains(i.Name, ":") {
-			continue
-		}
-
-		interfazes = append(interfazes, interfaze{
-			name: i.Name,
-			addr: i.HardwareAddr,
-		})
-	}
-
-	sort.Slice(interfazes, func(i, j int) bool {
-		return strings.Compare(interfazes[i].name, interfazes[j].name) == -1
-	})
-
-	buffer := new(bytes.Buffer)
-	for _, i := range interfazes {
-		addr := []byte(i.addr)
-		buffer.Write(addr)
-	}
-
-	data := buffer.Bytes()
+	data := []byte(machineId)
 	hash := sha256.Sum256(data)
 	return hash[:]
 }
@@ -138,7 +103,7 @@ func readLine(text string, hide bool, defaultValue string) string {
 	}
 
 	if err != nil {
-		log.Fatal("Could not read input from terminal", err)
+		log.Fatal("Could not read input from terminal: ", err)
 	}
 
 	line = strings.Replace(line, "\r", "", -1)
@@ -174,17 +139,17 @@ func readYesNoQuestion(text string, defaultsToYes bool) bool {
 func encrypt(value string, key []byte) (string, string) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		log.Fatal("Could not setup password encryption", err)
+		log.Fatal("Could not setup password encryption: ", err)
 	}
 
 	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {
-		log.Fatal("Could not setup password encryption", err)
+		log.Fatal("Could not setup password encryption: ", err)
 	}
 
 	salt := make([]byte, aesgcm.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
-		log.Fatal("Could not generate a unique password salt", err)
+		log.Fatal("Could not generate a unique password salt: ", err)
 	}
 
 	encrypted := aesgcm.Seal(nil, salt, []byte(value), nil)
@@ -194,27 +159,27 @@ func encrypt(value string, key []byte) (string, string) {
 func decrypt(value, salt string, key []byte) string {
 	data, err := base64.StdEncoding.DecodeString(value)
 	if err != nil {
-		log.Fatal("Could not decryption password", err)
+		log.Fatal("Could not decryption password: ", err)
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		log.Fatal("Could not setup password decryption", err)
+		log.Fatal("Could not setup password decryption: ", err)
 	}
 
 	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {
-		log.Fatal("Could not setup password decryption", err)
+		log.Fatal("Could not setup password decryption: ", err)
 	}
 
 	iv, err := base64.StdEncoding.DecodeString(salt)
 	if err != nil {
-		log.Fatal("Could not decode the password salt", err)
+		log.Fatal("Could not decode the password salt: ", err)
 	}
 
 	decrypted, err := aesgcm.Open(nil, iv, data, nil)
 	if err != nil {
-		log.Fatal("Could not decryption password", err)
+		log.Fatal("Could not decrypt password: ", err)
 	}
 
 	return string(decrypted)

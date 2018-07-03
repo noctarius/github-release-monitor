@@ -18,6 +18,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/denisbrodbeck/machineid",
+			"repository": "https://github.com/denisbrodbeck/machineid",
+			"vcs": "git",
+			"revision": "f73c20e1eb0edb032f45bf995dd3875b12fa0531",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/google/go-github",
 			"repository": "https://github.com/google/go-github",
 			"vcs": "git",

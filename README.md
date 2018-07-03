@@ -332,7 +332,8 @@ parameter to config sub-commands.
 
 GRM uses user account credentials (username and password) of Github account to authenticate itself
 against the Github API. This is mainly used to have higher request quotas, before the rate limits
-kick in.
+kick in. In case you use two-factor-authentication you have to use a ”Personal Access Token"
+(generated from your own user account under "Developer Settings") instead of a password.
 
 The [auth](#command-auth) command therefore asks for username and password and stores those
 information with the rest of the [Remote Account Definition](#remote-account-definition) in a local
@@ -341,8 +342,16 @@ directory: *$HOME/github-release-monitor/config*
 
 The file format uses a Git alike INI version with named sections and key-value pairs.
 
-The password will be encrypted with a system specific key (generated from the computer's
-network adapters) and a randomly generated salt.
+The password will be encrypted with a system specific key and a randomly generated salt. The system
+specific key is generated from the machine's unique ID that every operating system generates:
+
+ * **BSD** uses _/etc/hostid_ and _smbios.system.uuid_ as a fallback
+ * **Linux** uses _/var/lib/dbus/machine-id_ ([man](http://man7.org/linux/man-pages/man5/machine-id.5.html))
+ * **OS X** uses _IOPlatformUUID_
+ * **Windows** uses the _MachineGuid_ from _HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography_
+
+That said, other operating systems are not supported at the moment, due to the lack of a machineid
+to be used for encryption.
 
 Credentials are not exported and the stored information can only be used on the computer being
 authenticated. If the network adapter configuration changes or a new computer is used and all 
